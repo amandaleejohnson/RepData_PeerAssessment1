@@ -21,27 +21,42 @@ data from an anonymous individual collected during the months of October and Nov
 and include the number of steps taken in 5 minute intervals each day.
 
 ## Loading and preprocessing the data
-```{r libs, echo=FALSE, results="hide"}
-        options(scipen=999) #Prevents the numbers from being displayed in scientific notation
-        library(lubridate)
-        library(doBy)
-        library(ggplot2)
+
+```
+## 
+## Attaching package: 'lubridate'
 ```
 
-```{r loading}
+```
+## The following object is masked from 'package:base':
+## 
+##     date
+```
+
+
+```r
 activity = read.csv("./data/activity.csv")
 #Make sure the format of the date var is in fact, in date format:
         activity$date = as.Date(activity$date)
         activity$day = day(activity$date)
         activity$month = month(activity$date)
         str(activity)
-                
+```
+
+```
+## 'data.frame':	17568 obs. of  5 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Date, format: "2012-10-01" "2012-10-01" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+##  $ day     : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ month   : num  10 10 10 10 10 10 10 10 10 10 ...
 ```
         
 
 
 ## What is mean total number of steps taken per day?
-```{r mean_sumsteps}
+
+```r
 # Make a histogram of the total number of steps taken each day
 sumfun <- function(x, ...){
         c(s=sum(x, na.rm=TRUE, ...))
@@ -51,23 +66,39 @@ sum_steps = summaryBy(steps ~ date, data=activity, FUN=sumfun )
 steps_per_day = aggregate(steps ~ date, activity, sum)
 colnames(steps_per_day) = c("date", "steps")
 head(steps_per_day)
+```
 
+```
+##         date steps
+## 1 2012-10-02   126
+## 2 2012-10-03 11352
+## 3 2012-10-04 12116
+## 4 2012-10-05 13294
+## 5 2012-10-06 15420
+## 6 2012-10-07 11015
+```
+
+```r
 ggplot(steps_per_day, aes(x = steps)) +
 geom_histogram(fill = "blue", binwidth = 1000) +
 labs(title = "Histogram of daily step count in October & November 2012") + 
 labs(x = "Total number of steps per day", y = "Number of times in a day (count)") +
 theme_bw()
+```
 
+![](PA1_template_files/figure-html/mean_sumsteps-1.png)<!-- -->
+
+```r
 # Calculate and report the mean and median of the total number of steps taken per day
         mean_steps = round(mean(steps_per_day$steps, na.rm = TRUE), digits = 0)
         median_steps = round(median(steps_per_day$steps, na.rm = TRUE), digits = 0)
-        
 ```
 
-The mean total number of steps taken per day is **`r mean_steps` steps** and the median total number of steps taken per day is **`r median_steps` steps**. *Number of steps are rounded to the nearest integer.*
+The mean total number of steps taken per day is **10766 steps** and the median total number of steps taken per day is **10765 steps**. *Number of steps are rounded to the nearest integer.*
 
 ## What is the average daily activity pattern?
-```{r average_daily}
+
+```r
 # Make a time series plot (i.e. type = "l") of 
 # the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
         #Step 1 - Create a data frame that summarizes the mean # of steps taken at each interval, across all days
@@ -82,27 +113,45 @@ The mean total number of steps taken per day is **`r mean_steps` steps** and the
                 geom_line(stat = "identity", color = "#00AFBB", size = 1) + 
                 labs(title = "Average step count by time interval across full study period") + 
                 labs(x = "Time interval", y = "Mean step count")
-        
+```
+
+![](PA1_template_files/figure-html/average_daily-1.png)<!-- -->
+
+```r
 # Which 5-minute interval, on average across all the days in the dataset, contains the maximum
 # number of steps?
         #table(by_interval$interval, by_interval$steps.m)
         max(by_interval$steps.m)
-        
+```
+
+```
+## [1] 206.1698
+```
+
+```r
         # sort by steps.m (descending)
         sorted_by_interval = by_interval[order(-by_interval$steps.m),]
         
         #Display the 1st row, which corresponds to the highest mean step count
         sorted_by_interval[1,]
+```
+
+```
+##      interval steps       date day month  steps.m
+## 6284      835    NA 2012-10-08   8    10 206.1698
+```
+
+```r
         #Display only the interval associated with the highest mean step count
         max_interval = round(sorted_by_interval[1, 1], digits = 0)
         max_steps = round(sorted_by_interval[1, 6], digits = 0)
-        
-```                        
+```
 
-The 5-minute interval that contains the maximum number of steps (**`r max_steps`**) on average across all days in the dataset is the **`r max_interval`th** interval. *Number of steps are rounded to the nearest integer.*
+The 5-minute interval that contains the maximum number of steps (**206**) on average across all days in the dataset is the **835th** interval. *Number of steps are rounded to the nearest integer.*
 
 ## Imputing missing values
-```{r impute}
+
+```r
 # Note that there are a number of days/intervals where there are missing values 
 # (coded as NA). The presence of missing days may introduce bias 
 # into some calculations or summaries of the data.
@@ -137,21 +186,63 @@ The 5-minute interval that contains the maximum number of steps (**`r max_steps`
                                 geom_histogram(fill = "blue", binwidth = 1000) +
                                 labs(title = "Histogram of daily step count in October & November 2012") + 
                                 labs(x = "Total number of steps per day", y = "Number of times in a day (count)")
+```
+
+![](PA1_template_files/figure-html/impute-1.png)<!-- -->
+
+```r
         #Step 3: Calculate and report the mean and median of total number of steps taken per day
                 summary(sum_steps_nomiss)
+```
 
+```
+##       date            steps_nomiss.s 
+##  Min.   :2012-10-01   Min.   :   41  
+##  1st Qu.:2012-10-16   1st Qu.: 9819  
+##  Median :2012-10-31   Median :10766  
+##  Mean   :2012-10-31   Mean   :10766  
+##  3rd Qu.:2012-11-15   3rd Qu.:12811  
+##  Max.   :2012-11-30   Max.   :21194
+```
+
+```r
         #Step 5: What is the impact of imputing missing data on the estimates of the total daily number of steps?        
                 summary(steps_per_day)
+```
+
+```
+##       date                steps      
+##  Min.   :2012-10-02   Min.   :   41  
+##  1st Qu.:2012-10-16   1st Qu.: 8841  
+##  Median :2012-10-29   Median :10765  
+##  Mean   :2012-10-30   Mean   :10766  
+##  3rd Qu.:2012-11-16   3rd Qu.:13294  
+##  Max.   :2012-11-29   Max.   :21194
+```
+
+```r
                 summary(sum_steps_nomiss)
+```
+
+```
+##       date            steps_nomiss.s 
+##  Min.   :2012-10-01   Min.   :   41  
+##  1st Qu.:2012-10-16   1st Qu.: 9819  
+##  Median :2012-10-31   Median :10766  
+##  Mean   :2012-10-31   Mean   :10766  
+##  3rd Qu.:2012-11-15   3rd Qu.:12811  
+##  Max.   :2012-11-30   Max.   :21194
+```
+
+```r
         mean_steps_nomiss = round(mean(sum_steps_nomiss$steps_nomiss.s, na.rm = TRUE), digits = 0)
         median_steps_nomiss = round(median(sum_steps_nomiss$steps_nomiss.s, na.rm = TRUE), digits = 0)
-        
-                        
-```                        
-The total number of missing values in the dataset is **`r num_miss`**. The strategy I used to impute the missing values is based on the assumption that individuals have more consistent step counts based on the time of day rather than the day itself. Therefore, I'm going to impute based on the average number of steps by interval rather than the average number of steps by day. The median and median total number of steps taken per day differ when evaluating the non-imputed data set and the imputed data set. The mean and median total number of steps taken per day in the imputed data set are higher (**`r mean_steps_nomiss`** and **`r median_steps_nomiss`**) than the mean and median total number of steps taken per day in the non-imputed data set (**`r mean_steps`** and **`r median_steps`**). *Number of steps are rounded to the nearest integer.*
+```
+The total number of missing values in the dataset is **2304**. The strategy I used to impute the missing values is based on the assumption that individuals have more consistent step counts based on the time of day rather than the day itself. Therefore, I'm going to impute based on the average number of steps by interval rather than the average number of steps by day. The median and median total number of steps taken per day differ when evaluating the non-imputed data set and the imputed data set. The mean and median total number of steps taken per day in the imputed data set are higher (**10766** and **10766**) than the mean and median total number of steps taken per day in the non-imputed data set (**10766** and **10765**). *Number of steps are rounded to the nearest integer.*
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r daytype}
+
+```r
 # For this part the weekdays() function may be of 
 # some help here. Use the dataset with the filled-in missing values for this part.
 
@@ -180,13 +271,16 @@ The total number of missing values in the dataset is **`r num_miss`**. The strat
 ```
 
 The panel plot is below:
-```{r stackedpanel}
+
+```r
 #Step 2 - Create a stacked panel plot
 ggplot(data = mean_steps_interval_bydaytype, aes(x = interval, y = steps_nomiss.m)) +
         geom_line(stat="identity", color = "#00AFBB", size = 1) +
         facet_wrap(~dayofweek, ncol = 1) +
         labs(title = "Average step count by time interval across full study period") + 
         labs(x = "Time interval", y = "Mean step count")
-```                        
+```
+
+![](PA1_template_files/figure-html/stackedpanel-1.png)<!-- -->
 
 Yes, there are differences in activity patterns between weekdays and weekends. Using the imputed dataset, the figure displays how individuals are more active earlier in the day on weekdays, specifically around the 500-750 interval range. The largest spike between the two graphs is captured on the weekday figure, around the 800-900 interval range. We can also see that after the 1000 interval, individuals report a smaller average number of steps taken on weekdays than on weekends until around the 1800 interval. The two largest spikes in the weekday plot may correspond to individuals commuting on foot/bike to and from work. The multitude of spikes in the weekend plot may represent how individuals are more likely to be active throughout the course of the day when they are not at work. 
