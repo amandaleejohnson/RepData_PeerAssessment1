@@ -1,8 +1,9 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
 output: 
-  html_document:
-    keep_md: true
+        html_document:
+        keep_md: true
+
 ---
 
 ## Introduction
@@ -27,6 +28,16 @@ and include the number of steps taken in 5 minute intervals each day.
         library(doBy)
         library(ggplot2)
 ```
+
+Adding a block that allows us to automatically save the figures in a folder to github:
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::opts_chunk$set( fig.path = "figure/fig-")
+
+```
+
 
 ```{r loading}
 activity = read.csv("./data/activity.csv")
